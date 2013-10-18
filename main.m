@@ -45,7 +45,6 @@ int main(int argc, char *argv[])
                              argv[0]];
         
         fprintf(stderr, "%s\n", [help UTF8String]);
-        [parserApp release];
         [localAP drain];
         
         exit(1);
@@ -60,8 +59,6 @@ int main(int argc, char *argv[])
 	USWSDL      *wsdl = [parser parse];
     
 	[parserApp writeDebugInfoForWSDL:wsdl];
-
-	[parser release];
     
 	NSLog(@"Generating Objective C code into the output directory...");
 	USWriter *writer = [[USWriter alloc] initWithWSDL:wsdl outputDirectory:parserApp.outURL];
@@ -69,8 +66,6 @@ int main(int argc, char *argv[])
 	
 	NSLog(@"Finished!");
     
-	[writer release];
-    [parserApp release];
     [localAP drain];
     
     return 0;

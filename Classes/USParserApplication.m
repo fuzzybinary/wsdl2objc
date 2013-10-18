@@ -118,11 +118,12 @@
 	[panel setCanChooseDirectories:NO];
 	[panel setResolvesAliases:NO]; // When set to YES, refuses to select .wsdl symlink pointing to .xml file
 	[panel setAllowsMultipleSelection:NO];
+    [panel setAllowedFileTypes:@[@"wsdl"]];
 	
-	if([panel runModalForTypes:[NSArray arrayWithObject:@"wsdl"]] == NSOKButton) {
-		NSString *chosenPath = [[panel filenames] lastObject];
+	if([panel runModal] == NSOKButton) {
+		NSURL *chosenPath = [[panel URLs] lastObject];
 		NSUserDefaultsController *defaults = [NSUserDefaultsController sharedUserDefaultsController];
-		[defaults setValue:chosenPath forKeyPath:@"values.wsdlPath"];
+		[defaults setValue:[chosenPath absoluteString] forKeyPath:@"values.wsdlPath"];
 	}
 }
 
@@ -133,11 +134,12 @@
 	[panel setCanChooseDirectories:YES];
 	[panel setResolvesAliases:YES];
 	[panel setAllowsMultipleSelection:NO];
+    [panel setCanCreateDirectories:YES];
 	
-	if([panel runModalForTypes:nil] == NSOKButton) {
-		NSString *chosenPath = [[panel filenames] lastObject];
+	if([panel runModal] == NSOKButton) {
+		NSURL *chosenPath = [[panel URLs] lastObject];
 		NSUserDefaultsController *defaults = [NSUserDefaultsController sharedUserDefaultsController];
-		[defaults setValue:chosenPath forKeyPath:@"values.outPath"];
+		[defaults setValue:[chosenPath absoluteString] forKeyPath:@"values.outPath"];
 	}
 }
 
@@ -155,7 +157,6 @@
 {
 	[self willChangeValueForKey:@"statusString"];
 	
-	if(statusString != nil) [statusString release];
 	statusString = [aString copy];
 	
 	[self didChangeValueForKey:@"statusString"];
@@ -174,30 +175,28 @@
 
 - (void)doParseWSDL
 {
-	NSAutoreleasePool *pool = [NSAutoreleasePool new];
+	@autoreleasepool {
 	
-	self.parsing = YES;
+		self.parsing = YES;
+		
+		self.statusString = @"Parsing WSDL file...";
+		
+		USParser *parser = [[USParser alloc] initWithURL:self.wsdlURL];
+		USWSDL *wsdl = [parser parse];
+		
+		[self writeDebugInfoForWSDL:wsdl];
+		
+		
+		self.statusString = @"Generating Objective C code into the output directory...";
+		
+		USWriter *writer = [[USWriter alloc] initWithWSDL:wsdl outputDirectory:self.outURL];
+		[writer write];
+		
+		self.statusString = @"Finished!";
+		
+		self.parsing = NO;
 	
-	self.statusString = @"Parsing WSDL file...";
-	
-	USParser *parser = [[USParser alloc] initWithURL:self.wsdlURL];
-	USWSDL *wsdl = [parser parse];
-	
-	[self writeDebugInfoForWSDL:wsdl];
-	
-	[parser release];
-	
-	self.statusString = @"Generating Objective C code into the output directory...";
-	
-	USWriter *writer = [[USWriter alloc] initWithWSDL:wsdl outputDirectory:self.outURL];
-	[writer write];
-	[writer release];
-	
-	self.statusString = @"Finished!";
-	
-	self.parsing = NO;
-	
-	[pool drain];
+	}
 }
 #endif
 
