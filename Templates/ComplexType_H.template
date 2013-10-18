@@ -8,39 +8,13 @@
 
 %IFDEF superClass
 %IFDEF IsAttributedString
-@interface %«className» : NSObject <NSCoding> {
+@interface %«className» : NSObject <NSCoding>
 %ELSE
-@interface %«className» : %«superClass.classNameWithoutPtr» {
+@interface %«className» : %«superClass.classNameWithoutPtr»
 %ENDIF
 %ELSE
-@interface %«className» : NSObject <NSCoding> {
-SOAPSigner *soapSigner;
+@interface %«className» : NSObject <NSCoding>
 %ENDIF
-
-%IFDEF IsAttributedString
-/* content */
-NSString *_content;
-%ENDIF
-
-/* elements */
-%IFDEF sequenceElements
-%FOREACH element in sequenceElements
-%IF element.useAnArray
-	NSMutableArray *%«element.name»;
-%ELSE
-	%«element.type.classNameWithPtr» %«element.name»;
-%ENDIF
-%ENDFOR
-%ENDIF
-
-/* attributes */
-%IFDEF attributes
-%FOREACH attribute in attributes
-	%«attribute.type.classNameWithPtr» %«attribute.name»;
-%ENDFOR
-%ENDIF
-
-}
 
 - (NSString *)nsPrefix;
 

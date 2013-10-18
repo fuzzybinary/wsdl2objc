@@ -1,9 +1,5 @@
 @implementation %«className»
 
-%IFNDEF superClass
-@synthesize soapSigner;
-%ENDIF
-
 %IFEQ superClass.className "NSString *"
 %IFDEF attributes
 %DEFINE IsAttributedString 1
@@ -20,9 +16,9 @@ _content = nil;
 %FOREACH element in sequenceElements
 
 %IF element.useAnArray
-		%«element.name» = [[NSMutableArray alloc] init];
+		self.%«element.name» = [[NSMutableArray alloc] init];
 %ELSE
-		%«element.name» = 0;
+		self.%«element.name» = 0;
 %ENDIF
 
 %ENDFOR
@@ -30,7 +26,7 @@ _content = nil;
 
 %IFDEF attributes
 %FOREACH attribute in attributes
-		%«attribute.name» = 0;
+		self.%«attribute.name» = 0;
 %ENDFOR
 %ENDIF
 
@@ -173,18 +169,11 @@ _content = nil;
 %ENDIF
 }
 
-%IFDEF IsAttributedString
-/* content */
-@synthesize _content;
-%ENDIF
-
 /* elements */
 %IFDEF sequenceElements
 %FOREACH element in sequenceElements
 
 %IF element.useAnArray
-
-@synthesize %«element.name»;
 
 - (void)add%«element.uname»:(%«element.type.classNameWithPtr»)toAdd
 {
@@ -194,10 +183,6 @@ _content = nil;
 	if(toAdd != nil) [%«element.name» addObject:toAdd];
 %ENDIF
 }
-
-%ELSE
-
-@synthesize %«element.name»;
 
 %ENDIF
 
@@ -222,11 +207,6 @@ _content = nil;
 	return attributes;
 }
 
-%FOREACH attribute in attributes
-
-@synthesize %«attribute.name»;
-
-%ENDFOR
 %ENDIF
 
 
@@ -447,14 +427,13 @@ _content = nil;
  * http://davedelong.com/blog/2009/04/13/aspect-oriented-programming-objective-c
  */
 - (id) initWithCoder:(NSCoder *)decoder {
-	if ([super respondsToSelector:@selector(initWithCoder:)] && ![self isKindOfClass:[super class]]) {
-		self = [super performSelector:@selector(initWithCoder:) withObject:decoder];
-	} else {
-		self = [super init];
-	}
-	if (self == nil) { return nil; }
+%IFDEF superClass
+	self = [super initWithCoder:decoder];
+%ELSE
+	self = [super init];
+%ENDIF
+	if (!self) { return nil; }
  
-	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	unsigned int numIvars = 0;
 	Ivar * ivars = class_copyIvarList([self class], &numIvars);
 	for(int i = 0; i < numIvars; i++) {
@@ -465,7 +444,6 @@ _content = nil;
 		[self setValue:value forKey:key];
 	}
 	if (numIvars > 0) { free(ivars); }
-	[pool drain];
 	return self;
 }
 
@@ -473,7 +451,6 @@ _content = nil;
 	if ([super respondsToSelector:@selector(encodeWithCoder:)] && ![self isKindOfClass:[super class]]) {
 		[super performSelector:@selector(encodeWithCoder:) withObject:encoder];
 	}
-	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	unsigned int numIvars = 0;
 	Ivar * ivars = class_copyIvarList([self class], &numIvars);
 	for (int i = 0; i < numIvars; i++) {
@@ -483,7 +460,6 @@ _content = nil;
 		[encoder encodeObject:value forKey:key];
 	}
 	if (numIvars > 0) { free(ivars); }
-	[pool drain];
 }
 
 @end

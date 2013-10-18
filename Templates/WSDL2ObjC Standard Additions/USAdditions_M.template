@@ -310,8 +310,6 @@ static const char encodingTable[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopq
 
 @implementation USBoolean
 
-@synthesize boolValue=value;
-
 - (id)initWithBool:(BOOL)aValue
 {
 	self = [super init];
@@ -373,8 +371,6 @@ static const char encodingTable[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopq
 @end
 
 @implementation SOAPFault
-
-@synthesize faultcode, faultstring, faultactor, detail;
 
 + (id)deserializeFaultDetails:(xmlNodePtr)cur expectedExceptions:(NSDictionary *)exceptions
 {
@@ -458,7 +454,7 @@ static const char encodingTable[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopq
 
 - (NSString *)simpleFaultString
 {
-	NSString *simpleString = [faultstring stringByReplacingOccurrencesOfString: @"System.Web.Services.Protocols.SoapException: " withString: @""];
+	NSString *simpleString = [self.faultstring stringByReplacingOccurrencesOfString: @"System.Web.Services.Protocols.SoapException: " withString: @""];
 	NSRange suffixRange = [simpleString rangeOfString: @"\n   at "];
 
 	if (suffixRange.length > 0)
@@ -471,13 +467,11 @@ static const char encodingTable[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopq
 
 @implementation SOAPSigner
 
-@synthesize delegate;
-
 - (id) initWithDelegate:(id<SOAPSignerDelegate>)del
 {
     self = [super init];
     if (self != nil) {
-        delegate = del;
+        self.delegate = del;
     }
     return self;
 }
@@ -673,7 +667,7 @@ xmlXPathObjectPtr execute_xpath_expression(xmlDocPtr doc, const xmlChar* xpathEx
     int size = xmlC14NDocDumpMemory(doc, xpathObj->nodesetval, 1, NULL, 1, &canonicalized);
     
     // calculate and add its digest value
-    NSString *digestValue = [delegate base64Encode:[delegate digestData:[NSData dataWithBytes:canonicalized length:size]]];
+    NSString *digestValue = [self.delegate base64Encode:[self.delegate digestData:[NSData dataWithBytes:canonicalized length:size]]];
     xmlFree(canonicalized);
     xmlXPathFreeObject(xpathObj);
     
@@ -698,7 +692,7 @@ xmlXPathObjectPtr execute_xpath_expression(xmlDocPtr doc, const xmlChar* xpathEx
     
     size = xmlC14NDocDumpMemory(doc, xpathObj->nodesetval, 1, NULL, 1, &canonicalized);
     
-    NSData *signedData = [delegate signData:[NSData dataWithBytes:canonicalized length:size]];
+    NSData *signedData = [self.delegate signData:[NSData dataWithBytes:canonicalized length:size]];
     xmlFree(canonicalized);
     xmlXPathFreeObject(xpathObj);
     
@@ -708,7 +702,7 @@ xmlXPathObjectPtr execute_xpath_expression(xmlDocPtr doc, const xmlChar* xpathEx
         return nil;
     }
     
-    NSString *signatureValue = [delegate base64Encode:signedData];
+    NSString *signatureValue = [self.delegate base64Encode:signedData];
     xpathObj = execute_xpath_expression(doc, 
                                         (const xmlChar *)"/soap:Envelope/soap:Header/wsse:Security/ds:Signature/ds:SignatureValue",
                                         (const xmlChar *)"soap=http://schemas.xmlsoap.org/soap/envelope/ "
@@ -741,8 +735,8 @@ xmlXPathObjectPtr execute_xpath_expression(xmlDocPtr doc, const xmlChar* xpathEx
 {
     self = [super init];
     if (self != nil) {
-        username = [usr retain];
-        password = [pwd retain];
+        self.username = usr;
+        self.password = pwd;
     }
     return self;
 }
@@ -766,8 +760,8 @@ xmlXPathObjectPtr execute_xpath_expression(xmlDocPtr doc, const xmlChar* xpathEx
          NSURLAuthenticationMethodHTTPBasic]) {
         
         newCredential=[NSURLCredential 
-                       credentialWithUser:username
-                                 password:password
+                       credentialWithUser:self.username
+                                 password:self.password
                               persistence:NSURLCredentialPersistenceForSession];
         
         [[challenge sender] useCredential:newCredential 

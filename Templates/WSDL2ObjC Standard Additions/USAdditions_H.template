@@ -71,12 +71,7 @@
 
 @end
 
-@interface SOAPFault : NSObject {
-	NSString *faultcode;
-	NSString *faultstring;
-	NSString *faultactor;
-	NSString *detail;
-}
+@interface SOAPFault : NSObject 
 
 @property (nonatomic, retain) NSString *faultcode;
 @property (nonatomic, retain) NSString *faultstring;
@@ -94,11 +89,9 @@
 - (NSString *)base64Encode:(NSData *)rawData;
 @end
 
-@interface SOAPSigner : NSObject {
-    id<SOAPSignerDelegate> delegate;
-}
+@interface SOAPSigner : NSObject
 
-@property (nonatomic, assign) id<SOAPSignerDelegate> delegate;
+@property (nonatomic, weak) id<SOAPSignerDelegate> delegate;
 
 - (id) initWithDelegate:(id<SOAPSignerDelegate>)del;
 - (NSString *)signRequest:(NSString *)req;
@@ -110,10 +103,10 @@
 - (BOOL)authenticateForChallenge:(NSURLAuthenticationChallenge *)challenge;
 @end
 
-@interface BasicSSLCredentialsManager : NSObject <SSLCredentialsManaging> {
-    NSString *username;
-    NSString *password;
-}
+@interface BasicSSLCredentialsManager : NSObject <SSLCredentialsManaging> 
+
+@property(nonatomic) NSString* username;
+@property(nonatomic) NSString* password;
 
 + (id)managerWithUsername:(NSString *)usr andPassword:(NSString *)pwd;
 - (id)initWithUsername:(NSString *)usr andPassword:(NSString *)pwd;
