@@ -173,7 +173,7 @@
                 self.delegate = nil;
                 self.responseData = nil;
                 self.urlConnection = nil;
-                self.completionBlock = block;
+                self.finishedBlock = block;
         }
         
         return self;
@@ -226,8 +226,8 @@
 			[self connection:connection didFailWithError:error];
 		} else if(self.delegate && [self.delegate respondsToSelector:@selector(operation:completedWithResponse:)]) {
 			[self.delegate operation:self completedWithResponse:self.response];
-		} else if(self.completionBlock) {
-			self.completionBlock(self, self.response);
+		} else if(self.finishedBlock) {
+			self.finishedBlock(self, self.response);
 		}
 	}
 }
@@ -251,9 +251,9 @@
 	{
 		[self.delegate operation:self completedWithResponse:self.response];
 	}
-	else if(self.completionBlock)
+	else if(self.finishedBlock)
 	{
-		self.completionBlock(self, self.response);
+		self.finishedBlock(self, self.response);
 	}
 }
 @end
@@ -407,7 +407,7 @@
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-	if (self.responseData != nil && self.delegate != nil)
+	if (self.responseData != nil)
 	{
 		xmlDocPtr doc;
 		xmlNodePtr cur;
@@ -426,7 +426,14 @@
 			NSDictionary *userInfo = [NSDictionary dictionaryWithObject:@"Errors while parsing returned XML" forKey:NSLocalizedDescriptionKey];
 			
 			self.response.error = [NSError errorWithDomain:@"%«className»ResponseXML" code:1 userInfo:userInfo];
-			[self.delegate operation:self completedWithResponse:self.response];
+			if(self.delegate && [self.delegate respondsToSelector:@selector(operation:completedWithResponse:)])
+			{
+				[self.delegate operation:self completedWithResponse:self.response];
+			}
+			else if(self.finishedBlock)
+			{
+				self.finishedBlock(self, self.response);
+			}
 		} else {
 			cur = xmlDocGetRootElement(doc);
 			cur = cur->children;
@@ -490,7 +497,14 @@
 		}
 		
 		xmlCleanupParser();
-		[self.delegate operation:self completedWithResponse:self.response];
+		if(self.delegate && [self.delegate respondsToSelector:@selector(operation:completedWithResponse:)])
+		{
+			[self.delegate operation:self completedWithResponse:self.response];
+		}
+		else if(self.finishedBlock)
+		{
+			self.finishedBlock(self, self.response);
+		};
 	}
 }
 
