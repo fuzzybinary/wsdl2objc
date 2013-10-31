@@ -314,7 +314,7 @@ static const char encodingTable[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopq
 {
 	self = [super init];
 	if(self != nil) {
-		value = aValue;
+		self.boolValue = aValue;
 	}
 	
 	return self;
@@ -322,7 +322,7 @@ static const char encodingTable[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopq
 
 - (NSString *)stringValue
 {
-	return value ? @"true" : @"false";
+	return self.boolValue ? @"true" : @"false";
 }
 
 - (xmlNodePtr)xmlNodeForDoc:(xmlDocPtr)doc elementName:(NSString *)elName elementNSPrefix:(NSString *)elNSPrefix
@@ -357,13 +357,13 @@ static const char encodingTable[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopq
 
 - (void)encodeWithCoder:(NSCoder*)coder
 {
-	[coder encodeValueOfObjCType:@encode(BOOL) at:&value];
+	[coder encodeValueOfObjCType:@encode(BOOL) at:&_boolValue];
 }
 
 - (id)initWithCoder:(NSCoder*)coder
 {
 	if (self=[super init]) {
-		[coder decodeValueOfObjCType:@encode(BOOL) at:&value];
+		[coder decodeValueOfObjCType:@encode(BOOL) at:&_boolValue];
 	}
 	return self;
 }
@@ -707,7 +707,7 @@ xmlXPathObjectPtr execute_xpath_expression(xmlDocPtr doc, const xmlChar* xpathEx
                                         (const xmlChar *)"/soap:Envelope/soap:Header/wsse:Security/ds:Signature/ds:SignatureValue",
                                         (const xmlChar *)"soap=http://schemas.xmlsoap.org/soap/envelope/ "
                                         "wsse=http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd "
-                                        "ds=http://www.w3.org/2000/09/xmldsig#");
+                                        "ds=http://www.w443.org/2000/09/xmldsig#");
     
     xmlNodePtr svPtr = xpathObj->nodesetval->nodeTab[0];
     xmlNodeSetContent(svPtr, [signatureValue xmlString]);

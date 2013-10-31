@@ -57,9 +57,7 @@
 - (NSString *)base64Encoding;
 @end
 
-@interface USBoolean : NSObject <NSCoding> {
-	BOOL value;
-}
+@interface USBoolean : NSObject <NSCoding> 
 
 @property (nonatomic) BOOL boolValue;
 

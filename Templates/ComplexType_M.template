@@ -16,7 +16,7 @@ _content = nil;
 %FOREACH element in sequenceElements
 
 %IF element.useAnArray
-		self.%«element.name» = [[NSMutableArray alloc] init];
+		self->_%«element.name» = [[NSMutableArray alloc] init];
 %ELSE
 		self.%«element.name» = 0;
 %ENDIF
@@ -178,9 +178,9 @@ _content = nil;
 - (void)add%«element.uname»:(%«element.type.classNameWithPtr»)toAdd
 {
 %IFEQ element.type.assignOrRetain assign
-	[%«element.name» addObject:[NSNumber numberWithInt:(int)toAdd]];
+	[self.%«element.name» addObject:[NSNumber numberWithInt:(int)toAdd]];
 %ELSE
-	if(toAdd != nil) [%«element.name» addObject:toAdd];
+	if(toAdd != nil) [self.%«element.name» addObject:toAdd];
 %ENDIF
 }
 
